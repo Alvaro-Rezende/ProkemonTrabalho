@@ -1,12 +1,16 @@
 import tkinter as tk
 from tkinter import messagebox
-import regrasDoJogo  # Importa o arquivo com as regras do jogo
-from PIL import Image, ImageTk # Biblioteca para manipulação de imagens
+import regrasDoJogo  # importa o arquivo com as regras do jogo
+from PIL import Image, ImageTk  # Biblioteca para manipulação das imagens
+import time  # Biblioteca para manipulação de fps
+
 # --- Funções de Navegação ---
+
 
 def ir_para_batalha():
     frame_menu.pack_forget()  # Esconde o menu principal
     frame_batalha.pack(expand=True)
+
 
 def ir_para_pokedex():
     frame_menu.pack_forget()  # Esconde o menu principal
@@ -15,15 +19,18 @@ def ir_para_pokedex():
     label_detalhes_pokemon.config(text="")
     lista_pokemons.selection_clear(0, tk.END)
 
+
 def voltar_para_menu(frame_atual):
-    frame_atual.pack_forget()  # Esconde o frame atual (batalha ou pokedex)
-    frame_menu.pack(expand=True)  # Mostra o menu principal
+    frame_atual.pack_forget()  # Esconde o frame atual (Batalha ou podekex)
+    frame_menu.pack(expand=True)  # Mostra o menu princiapl
+
 
 def sair():
     janela.quit()
     janela.destroy()
 
 # --- Funções da Pokédex ---
+
 
 def mostrar_detalhes(event):
     # Pega o item selecionado na lista
@@ -37,17 +44,17 @@ def mostrar_detalhes(event):
     pokemon = regrasDoJogo.criar_pokemon(nome_pokemon_selecionado)
 
     if pokemon:
-        caminho_imagem = f"imagens/{pokemon.imagem}" 
+        caminho_imagem = f"imagens/{pokemon.imagem}"
         try:
             img = Image.open(caminho_imagem)
-            img = img.resize((200, 200), Image.Resampling.LANCZOS)
+            img = img.resize((300, 300), Image.Resampling.LANCZOS)
             foto_pokemon = ImageTk.PhotoImage(img)
 
             # Atualiza o label da imagem
             label_imagem_pokemon.config(image=foto_pokemon)
-            label_imagem_pokemon.image = foto_pokemon # Guarda uma referência para a imagem
+            label_imagem_pokemon.image = foto_pokemon
         except FileNotFoundError:
-            # Se não encontrar a imagem, limpa o label
+            # Se não encotrar o label, limpa a imagem
             label_imagem_pokemon.config(image="")
             label_imagem_pokemon.image = ""
 
@@ -59,7 +66,7 @@ def mostrar_detalhes(event):
         detalhes += "Ataques:\n"
         for ataque in pokemon.ataques:
             detalhes += f"- {ataque['nome']} (Dano: {ataque['dano']})\n"
-        
+
         # Atualiza o texto da label de detalhes
         label_detalhes_pokemon.config(text=detalhes)
 
@@ -67,39 +74,59 @@ def mostrar_detalhes(event):
 # --- Configuração da Janela Principal ---
 janela = tk.Tk()
 janela.title("Pokémon")
-janela.geometry("1920x1080")
+
+# Agora sempre abre em tela cheia
+janela.attributes("-fullscreen", True)
+
+# É possivel sair do fullscreen apertando ESC
+
+
+def sair_fullscreen(event=None):
+    janela.attributes("-fullscreen", False)
+
+
+janela.bind("<Escape>", sair_fullscreen)
+
 janela.config(bg="black")
 
 # --- Frame do Menu Principal ---
 frame_menu = tk.Frame(janela, bg="black")
 
-titulo = tk.Label(frame_menu, text="Pokémon", font=("Courier", 20, "bold"), fg="white", bg="black")
+titulo = tk.Label(frame_menu, text="Pokémon", font=(
+    "Courier", 20, "bold"), fg="white", bg="black")
 titulo.pack(pady=20)
 
-botao_batalhar = tk.Button(frame_menu, text="Battle", font=("Courier", 16), width=15, command=ir_para_batalha)
+botao_batalhar = tk.Button(frame_menu, text="Battle", font=(
+    "Courier", 16), width=15, command=ir_para_batalha)
 botao_batalhar.pack(pady=10)
 
 # O comando do botão da Pokédex agora chama a função ir_para_pokedex
-botao_pokedex = tk.Button(frame_menu, text="Ver Pokédex", font=("Courier", 16), width=15, command=ir_para_pokedex)
+botao_pokedex = tk.Button(frame_menu, text="Ver Pokédex", font=(
+    "Courier", 16), width=15, command=ir_para_pokedex)
 botao_pokedex.pack(pady=10)
 
-botao_sair = tk.Button(frame_menu, text="Exit", font=("Courier", 16), width=15, command=sair)
+botao_sair = tk.Button(frame_menu, text="Exit", font=(
+    "Courier", 16), width=15, command=sair)
 botao_sair.pack(pady=10)
 
 # --- Frame da Tela de Batalha ---
 frame_batalha = tk.Frame(janela, bg="black")
 
-label_batalha = tk.Label(frame_batalha, text="Choose Mode", font=("Courier", 20, "bold"), fg="white", bg="black")
+label_batalha = tk.Label(frame_batalha, text="Choose Mode", font=(
+    "Courier", 20, "bold"), fg="white", bg="black")
 label_batalha.pack(pady=20)
 
-btn_um_jogador = tk.Button(frame_batalha, text="Um jogador", font=("Courier", 16), width=15, command=lambda: messagebox.showinfo("Modo", "Um jogador selecionado!"))
+btn_um_jogador = tk.Button(frame_batalha, text="Um jogador", font=(
+    "Courier", 16), width=15, command=lambda: messagebox.showinfo("Modo", "Um jogador selecionado!"))
 btn_um_jogador.pack(pady=10)
 
-btn_vs_maquina = tk.Button(frame_batalha, text="Vs Maquina", font=("Courier", 16), width=15, command=lambda: messagebox.showinfo("Modo", "Vs Máquina selecionado!"))
+btn_vs_maquina = tk.Button(frame_batalha, text="Vs Maquina", font=(
+    "Courier", 16), width=15, command=lambda: messagebox.showinfo("Modo", "Vs Máquina selecionado!"))
 btn_vs_maquina.pack(pady=10)
 
 # O botão voltar agora é mais genérico
-btn_voltar_batalha = tk.Button(frame_batalha, text="Voltar", font=("Courier", 16), width=15, command=lambda: voltar_para_menu(frame_batalha))
+btn_voltar_batalha = tk.Button(frame_batalha, text="Voltar", font=(
+    "Courier", 16), width=15, command=lambda: voltar_para_menu(frame_batalha))
 btn_voltar_batalha.pack(pady=10)
 
 # --- Frame da Pokédex (NOVO) ---
@@ -109,7 +136,7 @@ frame_pokedex = tk.Frame(janela, bg="black")
 frame_lista = tk.Frame(frame_pokedex, bg="black")
 frame_lista.pack(side=tk.LEFT, fill=tk.Y, padx=20, pady=20)
 
-# Frame para os detalhes à direita
+# Frame para a lista à direita
 frame_detalhes = tk.Frame(frame_pokedex, bg="black")
 frame_detalhes.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH, padx=20, pady=20)
 
@@ -118,11 +145,13 @@ label_imagem_pokemon = tk.Label(frame_detalhes, bg="gray20")
 label_imagem_pokemon.pack(pady=10)
 
 # Título da Pokédex
-label_titulo_pokedex = tk.Label(frame_lista, text="Pokédex", font=("Courier", 20, "bold"), fg="white", bg="black")
+label_titulo_pokedex = tk.Label(frame_lista, text="Pokédex", font=(
+    "Courier", 20, "bold"), fg="white", bg="black")
 label_titulo_pokedex.pack(pady=10)
 
-# Lista para os nomes dos Pokémon
-lista_pokemons = tk.Listbox(frame_lista, font=("Courier", 14), width=20, height=15, bg="gray10", fg="white", selectbackground="red")
+# Lista para os nomes dos Pokémons
+lista_pokemons = tk.Listbox(frame_lista, font=(
+    "Courier", 14), width=20, height=15, bg="gray10", fg="white", selectbackground="red")
 lista_pokemons.pack(pady=10)
 
 # Adiciona cada nome de Pokémon do seu arquivo de regras na lista
@@ -133,7 +162,8 @@ for pokemon_data in regrasDoJogo.POKEDEX_DATA:
 lista_pokemons.bind("<<ListboxSelect>>", mostrar_detalhes)
 
 # Botão para voltar ao menu
-btn_voltar_pokedex = tk.Button(frame_lista, text="Voltar", font=("Courier", 16), width=15, command=lambda: voltar_para_menu(frame_pokedex))
+btn_voltar_pokedex = tk.Button(frame_lista, text="Voltar", font=(
+    "Courier", 16), width=15, command=lambda: voltar_para_menu(frame_pokedex))
 btn_voltar_pokedex.pack(pady=20, side=tk.BOTTOM)
 
 # Label para mostrar os detalhes do Pokémon selecionado
@@ -143,14 +173,69 @@ label_detalhes_pokemon = tk.Label(
     font=("Courier", 14),
     fg="white",
     bg="gray20",
-    justify=tk.LEFT, # Alinha o texto à esquerda
+    justify=tk.LEFT,  # Alinha o texto à esquerda
     padx=20,
     pady=20,
-    wraplength=400 # Quebra a linha se o texto for muito longo
+    wraplength=400  # Quebra a linha se o texto for muito longo
 )
 label_detalhes_pokemon.pack(expand=True, fill=tk.BOTH)
 
+# Adicionado botão "Selecionar" na Pokédex
+# Ele salva o Pokémon escolhido em uma variável global e leva para a tela de batalha
+pokemon_escolhido = None  # variável global para armazenar escolha
+
+
+def selecionar_pokemon():
+    global pokemon_escolhido
+    indices_selecionados = lista_pokemons.curselection()  # Seleciona o pokémon da lista
+    if not indices_selecionados:
+        messagebox.showwarning("Aviso", "Selecione um Pokémon primeiro!")
+        return
+
+    nome_pokemon_selecionado = lista_pokemons.get(indices_selecionados[0])
+    pokemon_escolhido = regrasDoJogo.criar_pokemon(nome_pokemon_selecionado)
+
+    if pokemon_escolhido:
+        messagebox.showinfo("Pokémon Selecionado",
+                            f"Você escolheu {pokemon_escolhido.nome}!")
+        # Para conseguir ir batalha, tive que esconder a tela da Pokédex para ele levar a tela de batalha
+        frame_pokedex.pack_forget()  # Aqui ele esconde a tela da Pokédex
+        frame_batalha.pack(expand=True, fill=tk.BOTH)
+
+
+btn_selecionar = tk.Button(
+    frame_detalhes,
+    text="Selecionar",
+    font=("Courier", 16),
+    width=15,
+    command=selecionar_pokemon
+)
+btn_selecionar.pack(pady=10)
+
+# Esse codigo mostra o FPS do jogo
+fps_label = tk.Label(janela, text="", font=(
+    "Courier", 12), fg="green", bg="black")
+fps_label.place(x=10, y=10)
+
+# Defini um limite de 60fps, acho que ta bom
+ultimo_tempo = time.time()
+frames = 0
+
+
+def game_loop():
+    global ultimo_tempo, frames
+
+    frames += 1
+    agora = time.time()
+    if agora - ultimo_tempo >= 1:  # a cada 1 segundo
+        fps_label.config(text=f"FPS: {frames}")
+        frames = 0
+        ultimo_tempo = agora
+
+    janela.after(16, game_loop)  # 16ms = ~60 FPS
+
 
 # --- Início do Programa ---
-frame_menu.pack(expand=True)  # Começa mostrando o menu principal
+frame_menu.pack(expand=True)  # Sempre abre em tela cheia
+game_loop()
 janela.mainloop()
